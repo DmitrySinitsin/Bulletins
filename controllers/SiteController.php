@@ -115,6 +115,66 @@ class SiteController extends Controller
                                       'no_photo'=>$defaultImage, 'themes'=>$themes]);
     }
     
+    public function actionAuthinit(){
+        $auth= Yii::$app->authManager;
+        //$auth->removeAll();
+        /*
+            Роль -  testModerator
+         *          updateBulletin
+         *          deleteBulletin
+         * Роль -   testAuthor
+         * 
+         * те же, что у testModerator
+         * + createBulletin
+         * 
+         *          */
+        
+        $uBull = $auth->CreatePermission("updateBulletin");
+        $uBull->description = "Изменение объявления(тест)";
+        $auth->add($uBull);
+        
+        $dBull = $auth->CreatePermission("deleteBulletin");
+        $dBull->description = "Удаление объявления(тест)";
+        $auth->add($dBull);
+        
+        $cBull = $auth->CreatePermission("createBulletin");
+        $cBull->description = "Создание объявления(тест)";
+        $auth->add($cBull);
+        
+        $testModerator= $auth->CreateRole('testModerator');
+        $auth->add($testModerator);
+        $auth->addChild($testModerator, $uBull);
+        $auth->addChild($testModerator, $dBull);
+        
+        $testAuthor= $auth->CreateRole('testAuthor');
+        $auth->add($testAuthor);
+        $auth->addChild($testAuthor, $cBull);
+        $auth->addChild($testAuthor, $testModerator);
+        
+        
+        $auth->assign($testModerator, 2);
+        $auth->assign($testAuthor,9);
+        
+        
+        return $this->render('authinit');
+    }
+    
+    public function actionTestrole(){
+        
+        $role="";
+        
+        if (Yii::$app->user->can('createBulletin'))
+        {
+            $role=" Создание объявления";
+        }
+        elseif (Yii::$app->user->can('deleteBulletin')) 
+        {
+            $role="Удаление объявления";
+        }
+        
+        return $this->render('testrole',['role'=>$role]);
+    }
+    
     public function actionAdvsearch(){
         $bulletins=null;
         $advSearch = new AdvsearchForm();
