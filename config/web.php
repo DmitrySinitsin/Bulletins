@@ -18,6 +18,10 @@ $config = [
             'cookieValidationKey' => 'bull1232342353453464567453453453',
             'baseUrl'=>'',
         ],
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+            'defaultRoles' => ['guest', 'user'],
+        ],
         'cache' => [
             'class' => 'yii\caching\FileCache',
         ],
