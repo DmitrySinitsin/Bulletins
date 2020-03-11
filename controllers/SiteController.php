@@ -117,44 +117,98 @@ class SiteController extends Controller
     
     public function actionAuthinit(){
         $auth= Yii::$app->authManager;
-        //$auth->removeAll();
-        /*
-            Роль -  testModerator
-         *          updateBulletin
-         *          deleteBulletin
-         * Роль -   testAuthor
-         * 
-         * те же, что у testModerator
-         * + createBulletin
-         * 
-         *          */
         
-        $uBull = $auth->CreatePermission("updateBulletin");
-        $uBull->description = "Изменение объявления(тест)";
-        $auth->add($uBull);
+        $CreateMyBulletins = $auth->createPermission('CreateMyBulletins');
+        $CreateMyBulletins->description="Создание моего объявления";
+        $auth->add($CreateMyBulletins);
         
-        $dBull = $auth->CreatePermission("deleteBulletin");
-        $dBull->description = "Удаление объявления(тест)";
-        $auth->add($dBull);
+        $EditMyBulletins = $auth->createPermission('EditMyBulletins');
+        $EditMyBulletins->description="Редактирование моего объявления";
+        $auth->add($EditMyBulletins);
         
-        $cBull = $auth->CreatePermission("createBulletin");
-        $cBull->description = "Создание объявления(тест)";
-        $auth->add($cBull);
+        $DeleteMyBulletins = $auth->createPermission('DeleteMyBulletins');
+        $DeleteMyBulletins->description="Удаление моего объявления";
+        $auth->add($DeleteMyBulletins);
         
-        $testModerator= $auth->CreateRole('testModerator');
-        $auth->add($testModerator);
-        $auth->addChild($testModerator, $uBull);
-        $auth->addChild($testModerator, $dBull);
-        
-        $testAuthor= $auth->CreateRole('testAuthor');
-        $auth->add($testAuthor);
-        $auth->addChild($testAuthor, $cBull);
-        $auth->addChild($testAuthor, $testModerator);
+        $PublicMyBulletins = $auth->createPermission('PublicMyBulletins');
+        $PublicMyBulletins->description="Публикация моего объявления";
+        $auth->add($PublicMyBulletins);
         
         
-        $auth->assign($testModerator, 2);
-        $auth->assign($testAuthor,9);
         
+        
+        
+        $EditAnBulletins = $auth->createPermission('EditAnBulletins');
+        $EditAnBulletins->description="Редактирование чужого объявления";
+        $auth->add($EditAnBulletins);
+        
+        $DeleteAnBulletins = $auth->createPermission('DeleteAnBulletins');
+        $DeleteAnBulletins->description="Удаление чужого объявления";
+        $auth->add($DeleteAnBulletins);
+        
+        $PublicAnBulletins = $auth->createPermission('PublicAnBulletins');
+        $PublicAnBulletins->description="Публикация чужого объявления";
+        $auth->add($PublicAnBulletins);
+        
+        
+        
+        $DeleteAllBulletin = $auth->createPermission('DeleteAllBulletin');
+        $DeleteAllBulletin->description="Окончательное удаление объявлений";
+        $auth->add($DeleteAllBulletin);
+        
+        $CreateThemes = $auth->createPermission('CreateThemes');
+        $CreateThemes->description="Создание темы";
+        $auth->add($CreateThemes);
+        
+        $EditThemes = $auth->createPermission('EditThemes');
+        $EditThemes->description="Редактирование темы";
+        $auth->add($EditThemes);
+        
+        $DeleteThemes = $auth->createPermission('DeleteThemes');
+        $DeleteThemes->description="Удаление темы";
+        $auth->add($DeleteThemes);
+        
+        $DeleteAllThemes = $auth->createPermission('DeleteAllThemes');
+        $DeleteAllThemes->description="Окончательное удаление тем";
+        $auth->add($DeleteAllThemes);
+        
+        
+        $editDB = $auth->createPermission('editDB');
+        $editDB->description="Редактирование БД - суперпользователь";
+        $auth->add($editDB);
+        
+        
+        $bull_user= $auth->createRole('user');
+        $auth->add($bull_user);
+        $auth->addChild($bull_user, $CreateMyBulletins);
+        $auth->addChild($bull_user, $EditMyBulletins);
+        $auth->addChild($bull_user, $DeleteMyBulletins);
+        $auth->addChild($bull_user, $PublicMyBulletins);
+        
+        $moderator = $auth->createRole('moderator');
+        $auth->add($moderator);
+        $auth->addChild($moderator, $bull_user);
+        $auth->addChild($moderator, $EditAnBulletins);
+        $auth->addChild($moderator, $PublicAnBulletins);
+        
+        $admin = $auth->createRole('admin');
+        $auth->add($admin);
+        $auth->addChild($admin, $moderator);
+        $auth->addChild($admin, $DeleteAnBulletins);
+        $auth->addChild($admin, $DeleteAllBulletin);
+        $auth->addChild($admin, $CreateThemes);
+        $auth->addChild($admin, $EditThemes);
+        $auth->addChild($admin, $DeleteThemes);
+        $auth->addChild($admin, $DeleteAllThemes);
+        
+        $superuser = $auth->createRole('superuser');
+        $auth->add($superuser);
+        $auth->addChild($superuser,$admin);
+        $auth->addChild($superuser,$editDB);
+        
+        
+        $auth->assign($superuser,4);
+        $auth->assign($admin,2);
         
         return $this->render('authinit');
     }
